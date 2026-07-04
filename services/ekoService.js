@@ -1,9 +1,9 @@
-import axios from 'axios';
-import { generateEkoSignature } from '../utils/ekoAuth.js';
+const axios = require('axios');
+const { generateEkoSignature } = require('../utils/ekoAuth');
 
-const EKO_BASE_URL = 'https://api.eko.in/sprint/api/v1'; // Standard Eko Sprint URL
+const EKO_BASE_URL = 'https://api.eko.in/sprint/api/v1';
 
-export const fetchBillDetails = async (operatorId, accountNumber, customerMobile) => {
+exports.fetchBillDetails = async (operatorId, accountNumber, customerMobile) => {
   try {
     const authHeaders = generateEkoSignature(
       process.env.EKO_SECRET_KEY,
@@ -30,7 +30,7 @@ export const fetchBillDetails = async (operatorId, accountNumber, customerMobile
   }
 };
 
-export const payBill = async (txnData) => {
+exports.payBill = async (txnData) => {
   try {
     const authHeaders = generateEkoSignature(
       process.env.EKO_SECRET_KEY,

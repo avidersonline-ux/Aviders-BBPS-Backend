@@ -1,8 +1,8 @@
-import Transaction from '../models/Transaction.js';
-import * as ekoService from '../services/ekoService.js';
-import { generateUPIIntent } from '../utils/upiGenerator.js';
+const Transaction = require('../models/Transaction');
+const ekoService = require('../services/ekoService');
+const { generateUPIIntent } = require('../utils/upiGenerator');
 
-export const initiateBillFetch = async (req, res) => {
+exports.initiateBillFetch = async (req, res) => {
   try {
     const { operatorId, accountNumber, customerMobile } = req.body;
 
@@ -24,7 +24,7 @@ export const initiateBillFetch = async (req, res) => {
   }
 };
 
-export const createTransaction = async (req, res) => {
+exports.createTransaction = async (req, res) => {
   try {
     const { operatorId, accountNumber, customerMobile, amount } = req.body;
 
@@ -58,9 +58,9 @@ export const createTransaction = async (req, res) => {
   }
 };
 
-export const verifyPaymentAndPayBill = async (req, res) => {
+exports.verifyPaymentAndPayBill = async (req, res) => {
   try {
-    const { txnRefId, status } = req.body; // In production, use a webhook for status
+    const { txnRefId, status } = req.body;
 
     const transaction = await Transaction.findOne({ txnRefId });
 
@@ -72,7 +72,6 @@ export const verifyPaymentAndPayBill = async (req, res) => {
       transaction.paymentStatus = 'CAPTURED';
       await transaction.save();
 
-      // Initiate BBPS Payment via Eko
       try {
         const ekoResult = await ekoService.payBill(transaction);
         transaction.bbpsStatus = ekoResult.status === 0 ? 'SUCCESS' : 'FAILED';

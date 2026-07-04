@@ -1,28 +1,41 @@
-import mongoose from 'mongoose';
-import dotenv from 'dotenv';
+const mongoose = require('mongoose');
 
-dotenv.config();
+/**
+ * Global is used here to maintain a cached connection across hot reloads
+ * in development and prevent duplicate connections in serverless environments.
+ */
+let cached = global.mongoose;
 
-const connectDB = async () => {
-  try {
-    const conn = await mongoose.connect(process.env.MONGO_URI);
+if (!cached) {
+  cached = global.mongoose = { conn: null, promise: null };
+}
 
-    console.log(`MongoDB Connected: ${conn.connection.host}`);
-  } catch (error) {
-    console.error(`Error: ${error.message}`);
-    // Retry logic
-    console.log('Retrying MongoDB connection in 5 seconds...');
-    setTimeout(connectDB, 5000);
+async function connectDB() {
+  if (cached.conn) {
+    return cached.conn;
   }
-};
 
-// Event listeners for robust connection management
-mongoose.connection.on('disconnected', () => {
-  console.warn('MongoDB disconnected! Attempting to reconnect...');
-});
+  if (!cached.promise) {
+    const opts = {
+      bufferCommands: false,
+    };
 
-mongoose.connection.on('error', (err) => {
-  console.error(`MongoDB connection error: ${err}`);
-});
+    console.log('Connecting to MongoDB...');
+    cached.promise = mongoose.connect(process.env.MONGO_URI, opts).then((mongoose) => {
+      console.log('MongoDB Connected Successfully');
+      return mongoose;
+    });
+  }
 
-export default connectDB;
+  try {
+    cached.conn = await cached.promise;
+  } catch (e) {
+    cached.promise = null;
+    console.error('MongoDB Connection Error:', e.message);
+    throw e;
+  }
+
+  return cached.conn;
+}
+
+module.exports = connectDB;

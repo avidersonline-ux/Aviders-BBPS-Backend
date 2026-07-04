@@ -1,22 +1,13 @@
-import express from 'express';
-import {
+const express = require('express');
+const router = express.Router();
+const {
   initiateBillFetch,
   createTransaction,
   verifyPaymentAndPayBill
-} from '../controllers/bbpsController.js';
+} = require('../controllers/bbpsController');
 
-const router = express.Router();
-
-// @route   POST /api/bbps/fetch-bill
-// @desc    Fetch bill details from Eko BBPS
 router.post('/fetch-bill', initiateBillFetch);
-
-// @route   POST /api/bbps/create-txn
-// @desc    Create a transaction and get UPI Intent
 router.post('/create-txn', createTransaction);
-
-// @route   POST /api/bbps/verify-payment
-// @desc    Verify UPI payment and trigger Eko BBPS payment
 router.post('/verify-payment', verifyPaymentAndPayBill);
 
-export default router;
+module.exports = router;
