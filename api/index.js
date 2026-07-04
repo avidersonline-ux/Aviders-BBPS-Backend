@@ -21,10 +21,12 @@ app.use(async (req, res, next) => {
   }
 });
 
-// Import Routes (Assuming we keep the previous routes layout)
-// Note: In serverless, we mount them to the app instance
+// Import Routes
 const bbpsRoutes = require('../routes/bbpsRoutes');
+const paymentRoutes = require('../routes/paymentRoutes');
+
 app.use('/api/bbps', bbpsRoutes);
+app.use('/api/v1/payment', paymentRoutes);
 
 // Health Check
 app.get('/', (req, res) => {
